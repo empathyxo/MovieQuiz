@@ -30,13 +30,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         showLoadingIndicator()
         questionFactory.loadData()
-        didLoadDataFromServer()
         
         //инициализация AlertPresenter
         alertPresenter = AlertPresenter(viewController: self)
     }
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
+        hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
 
