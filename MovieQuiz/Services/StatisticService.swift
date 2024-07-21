@@ -18,12 +18,6 @@ final class StatisticService: StatisticServiceProtocol {
         case totalQuestions
         
     }
-   /* private let gamesCountKey = "gamesCountKey"
-    private let bestGameCorrectKey = "bestGameCorrectKey"
-    private let bestGameTotalKey = "bestGameTotalKey"
-    private let bestGameDateKey = "bestGameDateKey"
-    private let totalAccuracyKey = "totalAccuracyKey"
-    private let totalQuestionsKey = "totalQuestionsKey" */
     
     var gamesCount: Int {
         get {
@@ -79,6 +73,3 @@ final class StatisticService: StatisticServiceProtocol {
         storage.set(newTotalQuestions, forKey: Keys.totalQuestions.rawValue)
     }
 }
-    
-    
-

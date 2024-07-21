@@ -13,11 +13,11 @@ class AlertPresenter {
         self.viewController = viewController
     }
    func show(quizresult: AlertModel) {
-        let alert = UIAlertController(title: quizresult.title, message: quizresult.message, preferredStyle: .alert)
+       let alert = UIAlertController(title: quizresult.title, message: quizresult.message, preferredStyle: .alert)
        let action = UIAlertAction(title: quizresult.buttonText, style: .default) {_ in
            quizresult.completion?()
        }
-            alert.addAction(action)
-            viewController?.present(alert, animated: true, completion: nil)
-        }
+       alert.addAction(action)
+       viewController?.present(alert, animated: true, completion: nil)
     }
+}
