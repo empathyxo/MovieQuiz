@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter {
     private weak var viewController: UIViewController?
     init(viewController: UIViewController) {
         self.viewController = viewController
@@ -18,6 +18,10 @@ class AlertPresenter {
            quizresult.completion?()
        }
        alert.addAction(action)
+       
+       // Добавление accessibility identifier
+       alert.view.accessibilityIdentifier = "alert"
+       
        viewController?.present(alert, animated: true, completion: nil)
     }
 }
