@@ -1,72 +1,81 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
+    @IBOutlet private weak var previewImage: UIImageView!
+    @IBOutlet private weak var indexLabel: UILabel!
+    @IBOutlet private weak var questionLabel: UILabel!
+    @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    
+    private var presenter: MovieQuizPresenter!
+    private var alertPresenter: AlertPresenter?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter = MovieQuizPresenter(viewController: self)
+        alertPresenter = AlertPresenter(viewController: self)
     }
-}
+    //отображение и скрытие индикатора загрузки
+    func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+    //функция показа сетевой ошибки
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let alert = AlertModel(title: "Ошибка", message: message, buttonText: "Попробовать еще раз") {
+            [weak self] in
+            guard let self = self else {return}
+            self.presenter.restartGame()
+        }
+        alertPresenter?.show(quizresult: alert)
+    }
+    
+//функция для смены вопроса
+    func show(quizstep: QuizStepViewModel){
+        previewImage.image = quizstep.image
+        questionLabel.text = quizstep.question
+        indexLabel.text = quizstep.questionNumber
+        changeStateButton(isEnabled: true)
+ }
+//функция для показа алерта с результатами
+    func show(quizresult: QuizResultsViewModel) {
+        let alertModel = AlertModel(title: quizresult.title, message: quizresult.text, buttonText: quizresult.buttonText, completion: {[weak self] in
+            guard let self = self else {return}
+            self.presenter.restartGame()
+        })
+        alertPresenter?.show(quizresult: alertModel)
+    }
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        previewImage.layer.masksToBounds = true
+        previewImage.layer.borderWidth = 8
+        previewImage.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+    }
+    func resetImageBorder() {
+            previewImage.layer.borderWidth = 0
+            previewImage.layer.borderColor = UIColor.clear.cgColor
+        }
+//реализация нажатия кнопки ДА
+    @IBAction func yesButtonTouched(_ sender: Any) {
+        presenter.yesButtonTouched()
+        changeStateButton(isEnabled: false)
+    }
+//реализация нажатия кнопки НЕТ
+    @IBAction func noButtonTouched(_ sender: Any) {
+        presenter.noButtonTouched()
+        changeStateButton(isEnabled: false)
+    }
+    
+    func changeStateButton(isEnabled: Bool) {
+            noButton.isEnabled = isEnabled
+            yesButton.isEnabled = isEnabled
+        }
 
-/*
- Mock-данные
- 
- 
- Картинка: The Godfather
- Настоящий рейтинг: 9,2
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Dark Knight
- Настоящий рейтинг: 9
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Kill Bill
- Настоящий рейтинг: 8,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Avengers
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Deadpool
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Green Knight
- Настоящий рейтинг: 6,6
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Old
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: The Ice Age Adventures of Buck Wild
- Настоящий рейтинг: 4,3
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Tesla
- Настоящий рейтинг: 5,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Vivarium
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
-*/
+}
