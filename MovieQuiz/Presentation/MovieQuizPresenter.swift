@@ -14,13 +14,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var correctAnswers: Int = 0
     var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol?
-    private var statisticService: StatisticServiceProtocol = StatisticService()
+    var statisticService: StatisticServiceProtocol!
     private weak var viewController: MovieQuizViewController?
     
     init (viewController: MovieQuizViewController){
         self.viewController = viewController
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
+        statisticService = StatisticService()
         viewController.showLoadingIndicator()
     }
     func didLoadDataFromServer() {
@@ -72,7 +73,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else {return}
         let givenAnswer = isYes
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        self.proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     //реализация нажатия кнопки ДА
     func yesButtonTouched() {
@@ -84,7 +85,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     //функция для определения конца игры или переключения вопроса
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             statisticService.store(correct: correctAnswers, total: questionsAmount)
             let bestGame = statisticService.bestGame
@@ -94,6 +95,18 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         } else {
             self.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
+            viewController?.previewImage.layer.borderWidth = 0
+        }
+    }
+    //функция для отображения рамки правильного/неправильного ответа
+    func proceedWithAnswer(isCorrect: Bool){
+        self.didAnswer(isCorrectAnswer: isCorrect)
+        
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+                
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else {return}
+            self.proceedToNextQuestionOrResults()
         }
     }
 }

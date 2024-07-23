@@ -1,7 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    @IBOutlet private weak var previewImage: UIImageView!
+    @IBOutlet weak var previewImage: UIImageView!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet weak var yesButton: UIButton!
@@ -10,7 +10,6 @@ final class MovieQuizViewController: UIViewController {
     
     private var presenter: MovieQuizPresenter!
     private var alertPresenter: AlertPresenter?
-    private var statisticService: StatisticServiceProtocol = StatisticService()
     
     private let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
@@ -59,30 +58,11 @@ final class MovieQuizViewController: UIViewController {
         })
         alertPresenter?.show(quizresult: alertModel)
     }
-//функция для отображения рамки правильного/неправильного ответа
-    func showAnswerResult(isCorrect: Bool){
-        presenter.didAnswer(isCorrectAnswer: isCorrect)
-
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
         previewImage.layer.masksToBounds = true
         previewImage.layer.borderWidth = 8
-
-        previewImage.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor: UIColor.ypRed.cgColor
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else {return}
-            self.presenter.showNextQuestionOrResults()
-            self.previewImage.layer.borderWidth = 0
-        }
-    }
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
-            let bestGame = statisticService.bestGame
-            let formattedDate = dateFormatter.string(from: bestGame.date)
-            let result = QuizResultsViewModel(title: "Этот раунд завершен!", text: "Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(bestGame.correct)/\(bestGame.total) (\(formattedDate))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%", buttonText: "Сыграть еще раз")
-            self.show(quizresult: result)
-        } else {
-            presenter.switchToNextQuestion()
-        }
+        previewImage.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
 //реализация нажатия кнопки ДА
     @IBAction func yesButtonTouched(_ sender: Any) {
