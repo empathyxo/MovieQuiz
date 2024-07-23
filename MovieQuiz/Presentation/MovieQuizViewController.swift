@@ -1,7 +1,7 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
-    @IBOutlet weak var previewImage: UIImageView!
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
+    @IBOutlet private weak var previewImage: UIImageView!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet weak var yesButton: UIButton!
@@ -10,12 +10,6 @@ final class MovieQuizViewController: UIViewController {
     
     private var presenter: MovieQuizPresenter!
     private var alertPresenter: AlertPresenter?
-    
-    private let dateFormatter: DateFormatter = {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd.MM.yyyy HH:mm"
-            return formatter
-        }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +58,10 @@ final class MovieQuizViewController: UIViewController {
         previewImage.layer.borderWidth = 8
         previewImage.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
+    func resetImageBorder() {
+            previewImage.layer.borderWidth = 0
+            previewImage.layer.borderColor = UIColor.clear.cgColor
+        }
 //реализация нажатия кнопки ДА
     @IBAction func yesButtonTouched(_ sender: Any) {
         presenter.yesButtonTouched()
@@ -75,7 +73,7 @@ final class MovieQuizViewController: UIViewController {
         changeStateButton(isEnabled: false)
     }
     
-    private func changeStateButton(isEnabled: Bool) {
+    func changeStateButton(isEnabled: Bool) {
             noButton.isEnabled = isEnabled
             yesButton.isEnabled = isEnabled
         }

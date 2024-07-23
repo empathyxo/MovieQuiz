@@ -14,10 +14,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var correctAnswers: Int = 0
     var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol?
-    var statisticService: StatisticServiceProtocol!
-    private weak var viewController: MovieQuizViewController?
+    private var statisticService: StatisticServiceProtocol!
+    private weak var viewController: MovieQuizViewControllerProtocol?
     
-    init (viewController: MovieQuizViewController){
+    init (viewController: MovieQuizViewControllerProtocol){
         self.viewController = viewController
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
@@ -85,7 +85,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     //функция для определения конца игры или переключения вопроса
-    func proceedToNextQuestionOrResults() {
+    private func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             statisticService.store(correct: correctAnswers, total: questionsAmount)
             let bestGame = statisticService.bestGame
@@ -95,11 +95,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         } else {
             self.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
-            viewController?.previewImage.layer.borderWidth = 0
+            viewController?.resetImageBorder()
         }
     }
     //функция для отображения рамки правильного/неправильного ответа
-    func proceedWithAnswer(isCorrect: Bool){
+    private func proceedWithAnswer(isCorrect: Bool){
         self.didAnswer(isCorrectAnswer: isCorrect)
         
         viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
